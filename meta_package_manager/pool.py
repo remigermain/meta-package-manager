@@ -35,6 +35,7 @@ from .managers.dnf import DNF, YUM
 from .managers.emerge import Emerge
 from .managers.flatpak import Flatpak
 from .managers.gem import Gem
+from .managers.gnome import Gnome
 from .managers.homebrew import Brew, Cask
 from .managers.mas import MAS
 from .managers.npm import NPM
@@ -87,6 +88,7 @@ manager_classes = (
     Yay,
     YUM,
     Zypper,
+    Gnome,
 )
 """The list of all classes implementing the specific package managers.
 
@@ -105,9 +107,7 @@ These properties are checked and enforced in unittests.
 class ManagerPool:
     """A dict-like register, instantiating all supported package managers."""
 
-    ALLOWED_EXTRA_OPTION: Final = frozenset(
-        {"ignore_auto_updates", "stop_on_error", "dry_run", "timeout"},
-    )
+    ALLOWED_EXTRA_OPTION: Final = frozenset({"ignore_auto_updates", "stop_on_error", "dry_run", "timeout"})
     """List of extra options that are allowed to be set on managers during the use of
     the :py:func:`meta_package_manager.pool.ManagerPool.select_managers` helper
     below."""
@@ -157,9 +157,7 @@ class ManagerPool:
     @cached_property
     def maintained_manager_ids(self) -> tuple[str, ...]:
         """All manager IDs which are not deprecated."""
-        return tuple(
-            mid for mid in self.all_manager_ids if not self.register[mid].deprecated
-        )
+        return tuple(mid for mid in self.all_manager_ids if not self.register[mid].deprecated)
 
     @cached_property
     def default_manager_ids(self) -> tuple[str, ...]:
@@ -168,9 +166,7 @@ class ManagerPool:
         Must keep the same order defined by
         :py:prop:`meta_package_manager.pool.ManagerPool.all_manager_ids`.
         """
-        return tuple(
-            mid for mid in self.maintained_manager_ids if self.register[mid].supported
-        )
+        return tuple(mid for mid in self.maintained_manager_ids if self.register[mid].supported)
 
     @cached_property
     def unsupported_manager_ids(self) -> tuple[str, ...]:
@@ -179,11 +175,7 @@ class ManagerPool:
         Order is not important here as this list will be used to discard managers from
         selection sets.
         """
-        return tuple(
-            mid
-            for mid in self.maintained_manager_ids
-            if mid not in self.default_manager_ids
-        )
+        return tuple(mid for mid in self.maintained_manager_ids if mid not in self.default_manager_ids)
 
     def _select_managers(
         self,
@@ -242,17 +234,12 @@ class ManagerPool:
             # Check if operation is not implemented before calling `.available`. It
             # saves one call to the package manager CLI.
             if implements_operation and not manager.implements(implements_operation):
-                logging.warning(
-                    f"{theme.invoked_command(manager_id)} "
-                    f"does not implement {implements_operation}.",
-                )
+                logging.warning(f"{theme.invoked_command(manager_id)} " f"does not implement {implements_operation}.")
                 continue
 
             # Filters out inactive managers.
             if drop_inactive and not manager.available:
-                logging.info(
-                    f"Skip unavailable {theme.invoked_command(manager_id)} manager.",
-                )
+                logging.info(f"Skip unavailable {theme.invoked_command(manager_id)} manager.")
                 continue
 
             # Apply manager-level options.
