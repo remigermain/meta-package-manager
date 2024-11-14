@@ -50,6 +50,7 @@ from .managers.uv import UV
 from .managers.vscode import VSCode, VSCodium
 from .managers.winget import WinGet
 from .managers.yarn import Yarn
+from .managers.fwupdmgr import Fwupdmgr
 from .managers.zypper import Zypper
 
 if TYPE_CHECKING:
@@ -65,6 +66,7 @@ manager_classes = (
     Choco,
     Composer,
     DNF,
+    Fwupdmgr,
     Emerge,
     Flatpak,
     Gem,
